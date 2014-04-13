@@ -1,3 +1,7 @@
+/**
+* @file asl.h
+* @brief Semaphore list handling function declarations.
+*/
 #ifndef ASL_H
 #define ASL_H
 /* Semaphore list handling functions */

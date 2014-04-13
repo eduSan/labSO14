@@ -1,12 +1,30 @@
+/**
+* @file pcb.c
+* @brief Function definitions for handling Process Control Blocks.
+* @details The functions defined in this file are responsible for the allocation and allocation of ProcBlocks,
+* 				 as well as for the creation and maintenance of process queues and process trees.
+* @author Patrizia Thomas
+* @author Eduardo Santarelli
+* @version 0.1
+* @date 2014-02-23
+*/
+
 #include "const.h"
 #include "types.h"
 #include "pcb.h"
 
 
-HIDDEN pcb_t *pcbFree_h; /* list of free ProcBlocks (head pointer)*/
+HIDDEN pcb_t *pcbFree_h; /**< pointer to the head of a list of free ProcBlocks */
 
 /* PCB allocation Functions */
 
+/**
+* @brief Initialize the pcbFree list
+*
+* Initialize the pcbFree list to contain all the elements of the
+* static array of MAXPROC ProcBlk’s. This method will be called
+* only once during data structure initialization.
+*/
 void initPcbs(){
 
 	int i;
@@ -25,7 +43,12 @@ void initPcbs(){
 
 }
 
-/* insert an element to the head of freePcb list */
+
+/**
+* Insert the element pointed to by p onto the pcbFree list.
+*
+* @param *p The ProcBlock to be inserted.
+*/
 void freePcb(pcb_t *p){
 
 	p->p_next = pcbFree_h;
@@ -33,7 +56,20 @@ void freePcb(pcb_t *p){
 
 }
 
-/*get a procBlock from pcbFree (if present), then initialize and return it */
+
+/**
+* @brief Allocate a new Process Control Block.
+*
+* Return NULL if the pcbFree list is empty. Otherwise, remove
+* an element from the pcbFree list, provide initial values for ALL
+* of the ProcBlk’s fields (i.e. NULL and/or 0) and then return a
+* pointer to the removed element. ProcBlk’s get reused, so it is
+* important that no previous value persist in a ProcBlk when it
+* gets reallocated.
+*
+* @return A pointer to a ProcBlk with all its fields initialized,
+* 				 or NULL if the pcbFree list is empty.
+*/
 pcb_t *allocPcb(){
 
 	if(!pcbFree_h)
@@ -57,7 +93,14 @@ pcb_t *allocPcb(){
 
 /* Process Queues management */
 
-/* create an empty procQ */
+/**
+* @brief Initialize an empty Process Queue.
+*
+* This method is used to initialize a variable to be tail pointer to a
+* process queue.
+*
+* @return A pointer to the tail of an empty process queue; i.e. NULL.
+*/
 pcb_t *mkEmptyProcQ(){
 
 	pcb_t *tp = NULL;
@@ -65,7 +108,13 @@ pcb_t *mkEmptyProcQ(){
 
 }
 
-/* boolean: is the procQ pointed by tp empty? */
+
+/**
+* Check if the queue whose tail is pointed to by tp is empty.
+*
+* @param *tp The pointer to the tail of a Process Queue.
+* @return TRUE if the queue is empty, FALSE otherwise.
+*/
 int emptyProcQ(pcb_t *tp){
 
 	if(tp == NULL)
@@ -76,8 +125,16 @@ int emptyProcQ(pcb_t *tp){
 }
 
 
-/* Insert an element p in the procQ pointed by tp 	*
- * update tp if necessary				*/
+/**
+* @brief Insert a new ProcBlk in a ProcQ.
+*
+* Insert the ProcBlk pointed to by p into the process queue whose
+* tail-pointer is pointed to by tp. Note the double indirection through
+* tp to allow for the possible updating of the tail pointer as well.
+*
+* @param **tp The address of a pointer to the tail of a Process Queue.
+* @param *p A pointer to the pcb to be inserted into the queue.
+*/
 void insertProcQ(pcb_t **tp, pcb_t *p){
 
 	if(*tp == NULL){
@@ -93,7 +150,15 @@ void insertProcQ(pcb_t **tp, pcb_t *p){
 }
 
 
-/* return a pointer to the head of a queue */
+/**
+* @brief Return the head of a ProcQ.
+*
+* Return a pointer to the first ProcBlk from the process queue whose
+* tail is pointed to by tp. Do not remove this ProcBlkfrom the process
+* queue. Return NULL if the process queue is empty.
+* 
+* @param *tp A pointer to the tail of a Process Queue.
+*/
 pcb_t *headProcQ(pcb_t *tp){
 
 	if(tp)
@@ -103,7 +168,18 @@ pcb_t *headProcQ(pcb_t *tp){
 
 }
 
-/* retrieve the first element of a queue, remove it from the queue */
+
+/**
+* @brief Dequeue a ProcBlk from a ProcQ.
+*
+* Remove the first (i.e. head) element from the process queue whose
+* tail-pointer is pointed to by tp. Return NULL if the process queue
+* was initially empty; otherwise return the pointer to the removed
+* element. Update the process queue’s tail pointer if necessary.
+*
+* @param **tp The address of a pointer to the tail of a Process Queue.
+* @return A pointer to the removed element, or NULL if the queue was empty.
+*/
 pcb_t *removeProcQ(pcb_t **tp){
 
 	pcb_t *tmp = NULL;
@@ -122,6 +198,20 @@ pcb_t *removeProcQ(pcb_t **tp){
 
 }
 
+
+/**
+* @brief Remove and return a specific ProcBlock from a ProcQ.
+*
+* Remove the ProcBlk pointed to by p from the process queue whose
+* tail-pointer is pointed to by tp. Update the process queue’s tail
+* pointer if necessary. If the desired entry is not in the indicated queue
+* (an error condition), return NULL; otherwise, return p. Note that p
+* can point to any element of the process queue.
+* 
+* @param **tp The address of a pointer to the tail of a Process Queue.
+* @param *p A pointer to the pcb to be removed from the queue.
+* @return A pointer to the removed ProcBlock, or NULL if an error occurs.
+*/
 pcb_t *outProcQ(pcb_t **tp, pcb_t *p){
 	if (*tp == NULL)		/*if queue is empty return NULL*/
 		return NULL;
@@ -153,9 +243,16 @@ pcb_t *outProcQ(pcb_t **tp, pcb_t *p){
 	}		
 }	
 
+
 /* Process tree functions */
 
-/* boolean: has node p got any child? */
+/**
+* Return TRUE if the ProcBlk pointed to by p has no children. Return FALSE otherwise.
+*
+* @param p The pointer to a ProcBlk.
+* @retval TRUE
+* @retval FALSE.
+*/
 int emptyChild(pcb_t *p){
 
 	if(p->p_child == NULL)
@@ -165,7 +262,13 @@ int emptyChild(pcb_t *p){
 
 }
 
-/*insert p as a child of prnt*/
+
+/**
+* Make the ProcBlk pointed to by p a child of the ProcBlk pointed to by prnt.
+*
+* @param prnt A pointer to the ProcBlk that will become parent of *p
+* @param p A pointer to the ProcBlk to be inserted as a child of *prnt.
+*/
 void insertChild(pcb_t *prnt, pcb_t *p){
 
 	p->p_sib = prnt->p_child;
@@ -175,7 +278,17 @@ void insertChild(pcb_t *prnt, pcb_t *p){
 }
 
 
-/* remove the child of p (if present) */
+/**
+* @brief Remove the first child of *p from his children.
+*
+* Make the first child of the ProcBlk pointed to by p no longer a
+* child of p. Return NULL if initially there were no children of p.
+* Otherwise, return a pointer to this removed first child ProcBlk.
+*
+* @param p A pointer to the ProcBlk whose first child is to be removed.
+* @return A pointer to the removed first child of *p, or NULL if *p has no children.
+*/
+
 pcb_t *removeChild(pcb_t *p){
 
 	if(p->p_child == NULL) /*p has no child */
@@ -189,7 +302,19 @@ pcb_t *removeChild(pcb_t *p){
 
 }
 
-/* p is no longer a child of its parent */
+
+
+/**
+* @brief Make the ProcBlk pointed to by p no longer the child of its parent.
+*
+* Make the ProcBlk pointed to by p no longer the child of its parent.
+* If the ProcBlk pointed to by p has no parent, return NULL; otherwise,
+* return p. Note that the element pointed to by p need not be the first
+* child of its parent.
+*
+* @param p A pointer to the ProcBlock to be removed from its parent's list of children.
+* @return A pointer to the removed ProcBlk, or NULL if *p had no parent.
+*/
 pcb_t* outChild(pcb_t *p){
 
 	if(p->p_prnt == NULL)	/* p has no parent */

@@ -1,3 +1,10 @@
+/**
+* @file pcb.h
+* @brief Function declarations and constant definitions related to ProcBlk management.
+* @author Eduardo Santarelli
+* @version 0.1
+* @date 2014-04-13
+*/
 #ifndef PCB_H
 #define PCB_H
 
@@ -6,6 +13,10 @@
 
 /* process control block type */
 
+
+/**
+* @brief Process Control Block data type.
+*/
 typedef struct pcb_t {
 	/* Queue management */
 	struct pcb_t *p_next;

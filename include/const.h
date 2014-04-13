@@ -1,12 +1,24 @@
+/**
+* @file const.h
+* @brief Constant definitions for Kaya.
+*/
 #ifndef CONST_H
 #define CONST_H
 
 /* Kaya specific constants */
-/* Maxi number of overall (eg, system, daemons, user) concurrent processes */
+
+/**
+* Max number of overall (eg, system, daemons, user)
+* concurrent processes.
+*/
 #define MAXPROC 20
 
-#define UPROCMAX 3  /* number of usermode processes (not including master proc
-											 and system daemons */
+/**
+* number of usermode processes (not including maste
+* proc and system daemons.
+*/
+#define UPROCMAX 3  
+
 
 /* general purpose constants */
 #define EXTERN extern
